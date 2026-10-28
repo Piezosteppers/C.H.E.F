@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="PIEZOSTEP: un escalón piezoeléctrico que enciende la señal de salida de emergencia. Proyecto de 6° 4ª, Escuela Técnica Luciano Reyes, Campana, Buenos Aires.">
+<title>PIEZOSTEP · Escuela Técnica Luciano Reyes</title>
+<style>
+:root{--paper:#f5f2e9;--ink:#14213d;--blue:#2f6fd0;--green:#16a34a;--amber:#ffb703;--card:#fff;--wall:#dfe9f7;--muted:#58627a;--grid:#2f6fd01c;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#0f1626;--ink:#e8edf8;--card:#18223a;--wall:#243350;--muted:#9aa7c4;--blue:#6aa3f5;--grid:#6aa3f51a;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0f1626;--ink:#e8edf8;--card:#18223a;--wall:#243350;--muted:#9aa7c4;--blue:#6aa3f5;--grid:#6aa3f51a;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;color:var(--ink);font:17px/1.6 "Trebuchet MS",Verdana,sans-serif;background:var(--paper) linear-gradient(var(--grid) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/28px 28px}
+h1,h2,h3,.btn,.chip{font-family:Impact,"Arial Narrow Bold","Franklin Gothic Medium",Arial,sans-serif;letter-spacing:.03em}
+.wrap{max-width:960px;margin:auto;padding:0 18px}
+.ribbon{background:var(--ink);color:var(--paper);text-align:center;padding:9px 12px;font:700 13px "Trebuchet MS",sans-serif;letter-spacing:.14em;text-transform:uppercase}
+.hero{position:relative;overflow:hidden;padding:46px 0 calc(min(23vw,252px) + 24px);text-align:center;background-size:cover;background-position:center}.hero>.wrap{position:relative;z-index:1}.sch{position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:1000px;height:auto;display:block}.sch .a{fill:var(--card);stroke:var(--ink);stroke-width:3}.sch .w{fill:var(--wall);stroke:var(--ink);stroke-width:2}.sch .t{fill:var(--ink);font:700 14px Impact,Arial,sans-serif;letter-spacing:.14em}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%232f6fd0' stroke-opacity='.2' stroke-width='2'%3E%3Cpath d='M0 40h60v40h40M100 80v50h60M60 160h50v40M140 0v30h60'/%3E%3Ccircle cx='60' cy='40' r='4'/%3E%3Ccircle cx='100' cy='130' r='4'/%3E%3Ccircle cx='160' cy='130' r='4'/%3E%3Ccircle cx='110' cy='160' r='4'/%3E%3C/g%3E%3Cg fill='none' stroke='%23ffb703' stroke-opacity='.45' stroke-width='3'%3E%3Ccircle cx='150' cy='60' r='12'/%3E%3Cpath d='M150 40v8M150 72v8M130 60h8M162 60h8M136 46l6 6M158 68l6 6M164 46l-6 6M142 68l-6 6'/%3E%3C/g%3E%3C/svg%3E")}
+.bgup{display:inline-block;margin-top:6px;font-size:13px;color:var(--muted);text-decoration:underline;cursor:pointer}
+.logo{display:inline-flex;width:110px;height:110px;border-radius:50%;border:4px solid var(--ink);background:var(--card);align-items:center;justify-content:center;overflow:hidden;cursor:pointer;box-shadow:5px 5px 0 var(--ink)}
+.logo img{width:100%;height:100%;object-fit:contain;padding:8%}.logo svg{width:50%}
+.sign{display:inline-block;margin:26px 0 8px;padding:6px 26px 10px;background:var(--green);color:#fff;border:5px solid #fff;outline:4px solid var(--ink);border-radius:12px;font-size:clamp(2.4rem,11vw,6rem);line-height:1.05;animation:glow 2.4s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 45px 14px #22c55e99}}
+.tag{font-size:1.15rem;max-width:560px;margin:10px auto 22px}
+.btn{display:inline-block;border:3px solid var(--ink);background:var(--amber);color:#14213d;padding:10px 20px;font-size:1.05rem;text-transform:uppercase;cursor:pointer;border-radius:10px;box-shadow:4px 4px 0 var(--ink);text-decoration:none;transition:.1s}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.btn.alt{background:var(--card);color:var(--ink)}.btn.on{background:var(--blue);color:#fff}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:14px 0}
+section{padding:42px 0}
+.js section:not(.in){opacity:0;transform:translateY(26px)}
+section{transition:opacity .6s,transform .6s}
+h2{font-size:clamp(1.8rem,6vw,2.8rem);margin:0 0 6px;text-transform:uppercase}
+h2 span{background:linear-gradient(transparent 58%,var(--amber) 58%);padding:0 4px}
+.lead{color:var(--muted);margin:0 0 18px}
+.card{background:var(--card);border:3px solid var(--ink);border-radius:14px;box-shadow:5px 5px 0 var(--ink);padding:18px;margin:14px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+svg{max-width:100%}
+.scene{width:100%;border:3px solid var(--ink);border-radius:12px;background:var(--wall)}
+.bar{height:20px;border:3px solid var(--ink);border-radius:10px;background:var(--card);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--amber),var(--green));transition:width .3s}
+.stat{display:flex;justify-content:space-between;font-weight:700;margin:12px 0 4px}
+.msg{min-height:3.2em;padding:10px 14px;border-left:8px solid var(--blue);background:var(--card);margin-top:12px}
+input[type=range]{width:100%;accent-color:var(--blue)}
+.lb{fill:var(--muted);font:11px "Trebuchet MS",sans-serif}
+.flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.flow div{flex:1;min-width:120px;text-align:center;border:3px solid var(--ink);border-radius:10px;padding:8px;background:var(--card);font-weight:700;font-size:14px}
+.chip{cursor:pointer;border:3px solid var(--ink);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:99px;font-size:1rem;text-transform:uppercase}
+.chip.on{background:var(--blue);color:#fff}
+.ph{display:block;width:130px;height:130px;margin:0 auto 10px;border-radius:50%;border:4px solid var(--ink);background:var(--wall);overflow:hidden;cursor:pointer;position:relative}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.ph svg{width:100%;height:100%}
+.mem{text-align:center}.mem h3{margin:.2em 0;font-size:1.3rem}.mem small{color:var(--muted)}
+.in2{font:15px "Trebuchet MS",sans-serif;padding:10px;border:3px solid var(--ink);border-radius:8px;background:var(--card);color:var(--ink);flex:1;min-width:140px}
+.opt{display:block;width:100%;text-align:left;margin:8px 0}
+.ok{background:#16a34a!important;color:#fff!important}.bad{background:#dc2626!important;color:#fff!important}
+.flow2{stroke-dasharray:6 8;animation:dash .8s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.cf{position:fixed;top:-20px;z-index:9;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg)}}
+footer{text-align:center;padding:34px 18px;background:var(--ink);color:var(--paper);font-size:14px}
+</style>
+</head>
+<body>
+<div class="ribbon">Escuela Técnica Luciano Reyes · Campana, Buenos Aires · 6° 4ª</div>
+<header class="hero"><svg class="sch" viewBox="0 0 1000 252" aria-hidden="true"><rect x="0" y="232" width="1000" height="20" fill="#14213d"/><rect class="a" x="60" y="140" width="880" height="92"/><rect class="w" x="92" y="158" width="34" height="28"/><rect class="w" x="146" y="158" width="34" height="28"/><rect class="w" x="200" y="158" width="34" height="28"/><rect class="w" x="254" y="158" width="34" height="28"/><rect class="w" x="308" y="158" width="34" height="28"/><rect class="w" x="362" y="158" width="34" height="28"/><rect class="w" x="612" y="158" width="34" height="28"/><rect class="w" x="666" y="158" width="34" height="28"/><rect class="w" x="720" y="158" width="34" height="28"/><rect class="w" x="774" y="158" width="34" height="28"/><rect class="w" x="828" y="158" width="34" height="28"/><rect class="w" x="882" y="158" width="34" height="28"/><rect class="a" x="400" y="70" width="200" height="162"/><polygon class="a" points="390,72 500,24 610,72"/><circle class="a" cx="500" cy="56" r="14"/><path d="M500 56v-9M500 56l7 4" stroke="#14213d" stroke-width="2.5" fill="none"/><path d="M500 24V4" stroke="#14213d" stroke-width="3"/><polygon points="500,4 526,10 500,17" fill="#2f6fd0"/><text class="t" x="500" y="100" text-anchor="middle">ESCUELA TÉCNICA</text><text class="t" x="500" y="122" text-anchor="middle">LUCIANO REYES</text><rect x="470" y="168" width="60" height="64" fill="#ffb703" stroke="#14213d" stroke-width="3"/><path d="M500 168v64" stroke="#14213d" stroke-width="2"/><rect x="476" y="144" width="48" height="18" rx="3" fill="#16a34a" stroke="#fff" stroke-width="2"/><text x="500" y="158" text-anchor="middle" font-family="Impact,Arial" font-size="12" fill="#fff">EXIT</text><rect class="a" x="452" y="224" width="96" height="8"/></svg><div class="wrap">
+<label class="logo" title="Toca para cargar el logo de la escuela"><svg viewBox="0 0 60 70"><path d="M30 4 54 12v22c0 16-10 28-24 32C16 62 6 50 6 34V12z" fill="none" stroke="#2f6fd0" stroke-width="3"/><text x="30" y="40" text-anchor="middle" font-size="11" font-family="monospace" fill="#2f6fd0">LOGO</text></svg><input id="lgi" type="file" accept="image/*" hidden></label>
+<div><div class="sign">PIEZOSTEP</div></div>
+<p class="tag">Un escalón que convierte tus pisadas en energía limpia para que la señal de salida <b>nunca se apague</b>.</p>
+<div class="row"><a class="btn" href="#sim">Probar el simulacro</a><a class="btn alt" href="#como">Cómo funciona</a><a class="btn alt" href="#equipo">El equipo</a></div>
+<label class="bgup">Poner una foto de la escuela como fondo<input id="bgi" type="file" accept="image/*" hidden></label>
+</div></header>
+
+<div class="wrap">
+<section id="sim"><h2><span>Simulacro de emergencia</span></h2>
+<p class="lead">Corta la luz y ayuda al alumno a llegar a la salida. ¿Qué pasa con y sin PIEZOSTEP?</p>
+<div class="card">
+<svg class="scene" viewBox="0 0 600 240" role="img" aria-label="Pasillo de la escuela con el cartel EXIT">
+<rect y="190" width="600" height="50" fill="#b9a98a"/>
+<g><rect class="lamp" x="70" y="12" width="70" height="10" rx="4"/><rect class="lamp" x="200" y="12" width="70" height="10" rx="4"/><rect class="lamp" x="330" y="12" width="70" height="10" rx="4"/></g>
+<rect x="500" y="70" width="70" height="120" fill="#7a5230" stroke="#14213d" stroke-width="3"/><circle cx="558" cy="132" r="4" fill="#ffb703"/>
+<rect x="150" y="196" width="90" height="14" rx="3" fill="#ffb703" stroke="#14213d" stroke-width="3"/><text x="195" y="230" text-anchor="middle" class="lb" style="font-weight:700">escalón PIEZOSTEP</text>
+<path id="wire" d="M240 203H300V56H495" fill="none" stroke="#14213d" stroke-width="3" opacity=".35"/>
+<g id="fig" transform="translate(40,0)"><circle cx="0" cy="146" r="10" fill="#2f6fd0"/><path d="M0 156v28M0 164l-12 14M0 164l12 14M0 184l-9 8M0 184l9 8" stroke="#2f6fd0" stroke-width="5" stroke-linecap="round" fill="none"/><text id="q" x="14" y="136" font-size="22" font-weight="700" fill="#dc2626" opacity="0">?</text></g>
+<rect id="dark" width="600" height="240" fill="#02040a" opacity="0"/>
+<circle id="glow" cx="532" cy="56" r="62" fill="#22c55e" opacity="0"/>
+<g id="sg" opacity=".25"><rect x="495" y="40" width="74" height="32" rx="5" fill="#16a34a" stroke="#fff" stroke-width="3"/><text x="532" y="63" text-anchor="middle" font-family="Impact,Arial" font-size="22" fill="#fff">EXIT</text></g>
+</svg>
+<div class="row"><button class="btn alt on" id="mC">Con PIEZOSTEP</button><button class="btn alt" id="mS">Sin PIEZOSTEP</button><button class="btn alt" id="bo">Cortar la luz</button></div>
+<div class="stat"><span>Supercapacitor</span><span id="cp">0%</span></div><div class="bar"><i id="cb"></i></div>
+<div class="row"><button class="btn" id="step" style="font-size:1.4rem;padding:14px 34px">Pisar el escalón</button><button class="btn alt" id="rs">Reiniciar</button></div>
+<div class="stat"><span>Pisadas: <b id="n">0</b></span><span>Camino a la salida: <b id="pp">0%</b></span></div>
+<div class="msg" id="ms"></div>
+</div></section>
+
+<section id="prob"><h2><span>El problema y la solución</span></h2>
+<div class="row" style="justify-content:flex-start"><button class="btn on" data-p="0">Problemática</button><button class="btn alt" data-p="1">Solución</button><button class="btn alt" data-p="2">Energía limpia</button></div>
+<div class="card" id="pt" style="min-height:150px"></div></section>
+
+<section id="como"><h2><span>Cómo funciona</span></h2>
+<p class="lead">Mueve el control para pisar la placa y mira cómo se activan los piezoeléctricos.</p>
+<div class="card">
+<svg viewBox="0 0 400 215" style="width:100%;max-height:300px" aria-label="Corte del escalón">
+<rect x="50" y="180" width="300" height="14" fill="#14213d"/><text x="356" y="192" class="lb">base</text>
+<polyline id="s1" fill="none" stroke="#2f6fd0" stroke-width="4"/><polyline id="s2" fill="none" stroke="#2f6fd0" stroke-width="4"/>
+<rect x="140" y="156" width="120" height="8" fill="#14213d"/>
+<g id="up"><rect x="150" y="140" width="28" height="16"/><rect x="186" y="140" width="28" height="16"/><rect x="222" y="140" width="28" height="16"/></g>
+<g id="lo"><rect x="150" y="164" width="28" height="16"/><rect x="186" y="164" width="28" height="16"/><rect x="222" y="164" width="28" height="16"/></g>
+<rect id="tp" x="50" y="60" width="300" height="16" rx="3" fill="#ffb703" stroke="#14213d" stroke-width="3"/>
+<text x="56" y="52" class="lb">placa superior (interruptor mecánico)</text><text x="4" y="130" class="lb">resortes</text><text x="268" y="152" class="lb">piezos superiores</text><text x="268" y="176" class="lb">piezos inferiores</text>
+</svg>
+<div class="stat"><span>Presión sobre la placa</span><span id="pv">0%</span></div>
+<input id="pr" type="range" min="0" max="100" value="0" aria-label="Presión">
+<div class="flow"><div id="pn">0 de 6 piezoeléctricos</div><span>→</span><div>Puente de diodos<br><small>CA → CC</small></div><span>→</span><div>Supercapacitor<div class="bar" style="margin-top:6px;height:14px"><i id="eb"></i></div></div></div>
+<p class="lead" style="margin:12px 0 0">Al soltar, los resortes devuelven la placa a su posición de reposo. Una segunda placa repite el proceso y envía su energía al mismo supercapacitor.</p>
+</div></section>
+
+<section id="comp"><h2><span>Componentes</span></h2>
+<p class="lead">Toca cada uno para saber qué hace.</p>
+<div class="row" id="chips" style="justify-content:flex-start"></div>
+<div class="card" id="cd"></div></section>
+
+<section id="quiz"><h2><span>Ponete a prueba</span></h2><div class="card" id="qz"></div></section>
+
+<section id="equipo"><h2><span>El equipo</span></h2>
+<p class="lead">6° 4ª · Escuela Técnica Luciano Reyes. Toca el círculo para cargar la foto.</p>
+<div class="grid" id="team"></div></section>
+
+<section id="op"><h2><span>Libro de opiniones</span></h2>
+<p class="lead">Integrantes, profesores y visitantes: cuéntennos qué les pareció.</p>
+<div class="card"><div class="row" style="justify-content:flex-start"><input id="on" class="in2" maxlength="40" placeholder="Tu nombre"><select id="or" class="in2"><option>Integrante</option><option>Profesor/a</option><option>Visitante</option></select></div>
+<textarea id="ot" class="in2" rows="3" maxlength="400" placeholder="Escribí tu opinión sobre el proyecto" style="width:100%"></textarea>
+<div class="row" style="justify-content:flex-start"><button class="btn" id="os">Publicar</button><span id="om" style="font-size:14px;color:var(--muted)"></span></div></div>
+<div id="ol"></div></section>
+</div>
+<footer>PIEZOSTEP · Escuela Técnica Luciano Reyes · Campana, Buenos Aires<br>Proyecto de 6° 4ª: Tomas Sallas, Facundo Coletta, Matias Garcia y Moreno Dylan</footer>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+document.documentElement.classList.add('js');
+const io='IntersectionObserver'in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.1}):null;
+$$('section').forEach(s=>io?io.observe(s):s.classList.add('in'));
+function loadImg(inp,box,after){inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{let im=box.querySelector('img');if(!im){im=document.createElement('img');im.alt='Imagen cargada';box.prepend(im)}im.src=r.result;const sv=box.querySelector('svg');if(sv)sv.style.display='none'};r.readAsDataURL(f)}}
+loadImg($('#lgi'),$('.logo'));
+function confetti(){for(let i=0;i<60;i++){const e=document.createElement('i');e.className='cf';e.style.cssText='left:'+Math.random()*100+'vw;background:hsl('+Math.random()*360+',85%,55%);animation-duration:'+(2+Math.random()*2)+'s;animation-delay:'+Math.random()*.5+'s;width:'+(6+Math.random()*6)+'px;height:'+(10+Math.random()*8)+'px';document.body.append(e);setTimeout(()=>e.remove(),4600)}}
+
+// Simulacro
+let out=false,mode='con',ch=0,pos=0,steps=0,done=false;
+function sim(){
+ const lit=!out?1:(mode==='con'?Math.min(1,ch/25):0);
+ $('#dark').setAttribute('opacity',out?.84:0);$('#sg').setAttribute('opacity',.22+.78*lit);$('#glow').setAttribute('opacity',lit*.55);
+ $$('.lamp').forEach(l=>l.setAttribute('fill',out?'#7a8196':'#ffe27a'));
+ $('#cb').style.width=ch+'%';$('#cp').textContent=Math.round(ch)+'%';
+ $('#fig').setAttribute('transform','translate('+(40+pos*4.2)+',0)');$('#q').setAttribute('opacity',out&&lit<.4&&!done?1:0);
+ $('#wire').setAttribute('opacity',ch>2?.9:.3);$('#wire').setAttribute('stroke',ch>2?'#16a34a':'#14213d');$('#wire').classList.toggle('flow2',ch>2);
+ $('#n').textContent=steps;$('#pp').textContent=Math.round(pos)+'%';
+ $('#mC').classList.toggle('on',mode==='con');$('#mS').classList.toggle('on',mode==='sin');$('#bo').textContent=out?'Volver la luz':'Cortar la luz';$('#bo').classList.toggle('on',out);
+ $('#ms').textContent=done?'¡Llegó a la salida! Con una señal visible, evacuar es más rápido y seguro.':!out?'Hay luz: el cartel funciona con la red eléctrica. Corta la luz para ver qué pasa.':mode==='sin'?'Apagón sin PIEZOSTEP: no se ve la salida y el alumno no sabe hacia dónde ir.':lit<1?'Apagón. Pisa el escalón: cada pisada carga el supercapacitor y enciende el cartel EXIT.':'El cartel EXIT está encendido gracias a las pisadas. Sigue el camino.'}
+$('#step').onclick=()=>{if(done)return;steps++;if(mode==='con')ch=Math.min(100,ch+12);
+ const lit=!out?1:(mode==='con'?Math.min(1,ch/25):0);
+ pos=lit>.4?pos+5:Math.max(0,Math.min(100,pos+(Math.random()-.55)*8));
+ if(pos>=100){pos=100;done=true;confetti()}sim()};
+$('#mC').onclick=()=>{mode='con';sim()};$('#mS').onclick=()=>{mode='sin';sim()};$('#bo').onclick=()=>{out=!out;sim()};
+$('#rs').onclick=()=>{ch=0;pos=0;steps=0;done=false;sim()};
+setInterval(()=>{if(ch>0){ch=Math.max(0,ch-1.2);sim()}},500);sim();
+
+// Problema / solucion
+const PT=[["Problemática","En situaciones de emergencia como apagones, incendios u otros imprevistos, la escuela no cuenta con una señalización lo bastante visible para guiar rápido a los alumnos hacia una salida. Eso genera confusión, demoras en la evacuación y más riesgo para las personas."],["Solución","Una señal luminosa de «EXIT» alimentada con energía limpia: un escalón piezoeléctrico que almacena la energía de las pisadas. Así el cartel puede seguir encendido incluso si se corta la electricidad, y se fomenta el uso de energías renovables."],["Energía limpia","Es la que se obtiene de fuentes renovables que no generan emisiones ni contaminantes residuales. PIEZOSTEP la logra aprovechando algo que ya ocurre todos los días en la escuela: las pisadas."]];
+function pt(i){$$('[data-p]').forEach(b=>{b.classList.toggle('on',+b.dataset.p===i);b.classList.toggle('alt',+b.dataset.p!==i)});$('#pt').innerHTML='<h3 style="margin:0 0 8px;font-size:1.6rem;color:var(--blue)">'+PT[i][0]+'</h3><p style="margin:0">'+PT[i][1]+'</p>'}
+$$('[data-p]').forEach(b=>b.onclick=()=>pt(+b.dataset.p));pt(0);
+
+// Mecanismo
+function zig(x,top,bot){let p='';for(let i=0;i<=9;i++)p+=(x+(i==0||i==9?0:(i%2?-10:10)))+' '+(top+(bot-top)*i/9)+' ';return p}
+function mech(){const p=+$('#pr').value/100,y=60+Math.min(p,.6)/.6*64;$('#tp').setAttribute('y',y);
+ $('#s1').setAttribute('points',zig(80,y+16,180));$('#s2').setAttribute('points',zig(320,y+16,180));
+ const u=p>=.6,l=p>=.85;$$('#up rect').forEach(r=>r.setAttribute('fill',u?'#16a34a':'#9aa7c4'));$$('#lo rect').forEach(r=>r.setAttribute('fill',l?'#16a34a':'#9aa7c4'));
+ const n=(u?3:0)+(l?3:0);$('#pn').textContent=n+' de 6 piezoeléctricos';$('#eb').style.width=(n/6*100)+'%';$('#pv').textContent=Math.round(p*100)+'%'}
+$('#pr').oninput=mech;mech();
+
+// Componentes
+const C=[["Piezoeléctricos","Generan una diferencia de potencial al deformarse mecánicamente. Sus estructuras cristalinas, al recibir tensión o impacto, producen una descarga eléctrica (un impulso de alta tensión). El prototipo lleva 6, distribuidos en la cara superior e inferior de la placa menor."],["Resortes","Devuelven la placa a su posición de reposo cuando se deja de pisar, para que el escalón quede listo para la próxima pisada."],["Capacitores","Almacenan energía en un campo eléctrico y la liberan de forma rápida y controlada. En PIEZOSTEP, un supercapacitor guarda la energía de ambas placas."],["Puente de diodos","Circuito rectificador de cuatro diodos que convierte la corriente alterna (CA) en corriente continua (CC), la que puede almacenarse."],["Cables","Conectan la salida de las dos placas al mismo supercapacitor y de ahí al cartel luminoso."],["Piezas impresas","Componentes impresos que dan forma y soporte mecánico al prototipo."]];
+$('#chips').innerHTML=C.map((c,i)=>'<button class="chip" data-c="'+i+'">'+c[0]+'</button>').join('');
+function cc(i){$$('.chip').forEach(b=>b.classList.toggle('on',+b.dataset.c===i));$('#cd').innerHTML='<h3 style="margin:0 0 8px;font-size:1.6rem;color:var(--blue)">'+C[i][0]+'</h3><p style="margin:0">'+C[i][1]+'</p>'}
+$$('.chip').forEach(b=>b.onclick=()=>cc(+b.dataset.c));cc(0);
+
+// Quiz
+const Q=[["¿Qué problema detectó el equipo en la escuela?",["Falta de señalización visible en emergencias","Falta de agua","Poco espacio en el aula"],0],["¿Qué hace el puente de diodos?",["Almacena energía","Convierte corriente alterna en continua","Mide la presión"],1],["¿Dónde se guarda la energía generada?",["En los resortes","En un supercapacitor","En la placa superior"],1],["¿Cuántos piezoeléctricos tiene el prototipo por placa?",["2","4","6"],2],["¿Qué devuelve la placa a su posición de reposo?",["Los resortes","Los cables","Los diodos"],0]];
+let qi=0,sc=0;
+function ask(){const z=$('#qz');if(qi>=Q.length){z.innerHTML='<h3 style="font-size:1.8rem;margin:0">Puntaje: '+sc+' de '+Q.length+'</h3><p>'+(sc==Q.length?'¡Sos un experto en PIEZOSTEP!':'Repasa la sección de cómo funciona y vuelve a intentarlo.')+'</p><button class="btn" id="rq">Reintentar</button>';if(sc==Q.length)confetti();$('#rq').onclick=()=>{qi=0;sc=0;ask()};return}
+const q=Q[qi];z.innerHTML='<small>Pregunta '+(qi+1)+' de '+Q.length+'</small><h3 style="font-size:1.4rem;margin:4px 0 8px">'+q[0]+'</h3>'+q[1].map((o,i)=>'<button class="btn alt opt" data-i="'+i+'" style="font-family:inherit;text-transform:none">'+o+'</button>').join('');
+z.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{const ok=+b.dataset.i===q[2];if(ok)sc++;z.querySelectorAll('.opt').forEach(x=>{x.disabled=true;if(+x.dataset.i===q[2])x.classList.add('ok')});if(!ok)b.classList.add('bad');setTimeout(()=>{qi++;ask()},1100)})}
+ask();
+
+// Equipo
+const T=["Tomas Sallas","Facundo Coletta","Matias Garcia","Moreno Dylan"];
+$('#team').innerHTML=T.map(n=>'<div class="card mem"><label class="ph"><svg viewBox="0 0 100 100"><circle cx="50" cy="38" r="18" fill="#9aa7c4"/><path d="M14 100c4-30 20-40 36-40s32 10 36 40z" fill="#9aa7c4"/></svg><input type="file" accept="image/*" hidden></label><h3>'+n+'</h3><small>Integrante · 6° 4ª</small></div>').join('');
+$$('.ph').forEach(p=>loadImg(p.querySelector('input'),p));
+
+// Opiniones (se guardan en el dispositivo)
+let mem=[];
+function rend(){$('#ol').replaceChildren(...mem.map(x=>{const d=document.createElement('div');d.className='card';const a=document.createElement('b');a.textContent=x.role+' · '+x.name;const p=document.createElement('p');p.style.margin='4px 0 0';p.textContent=x.text;d.append(a,p);return d}))}
+try{mem=JSON.parse(localStorage.getItem('pzs_op')||'[]')}catch(e){mem=[]}
+rend();$('#om').textContent='Las opiniones se guardan en este dispositivo.';
+$('#os').onclick=()=>{const n=$('#on').value.trim(),t=$('#ot').value.trim();if(!n||!t){$('#om').textContent='Falta tu nombre o tu opinión.';return}
+mem.unshift({name:n,role:$('#or').value,text:t});try{localStorage.setItem('pzs_op',JSON.stringify(mem.slice(0,50)))}catch(e){}$('#ot').value='';rend();$('#om').textContent='¡Gracias por tu opinión!'};
+$('#bgi').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const h=$('.hero');h.style.backgroundImage='linear-gradient(color-mix(in srgb,var(--paper) 62%,transparent),color-mix(in srgb,var(--paper) 90%,transparent)),url("'+r.result+'")';$('.sch').style.display='none';h.style.paddingBottom='40px'};r.readAsDataURL(f)};
+</script>
+</body>
+</html>
